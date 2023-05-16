@@ -55,6 +55,34 @@ local spacer = {}
 local F = {}
 local T = {}
 
+local tt_version do
+	local maj,min,mic,bld = _TARANTOOL:match("(%d+)%.(%d+)%.(%d+)-(%d+)")
+	if not maj then
+		maj,min,mic,bld = _TARANTOOL:match("(%d+)%.(%d+)%.(%d+)-([%w%d]+%-%d+)")
+	end
+	if not maj then
+		maj,min,mic,bld = _TARANTOOL:match("(%d+)%.(%d+)%.(%d+)-([%w%d]+)")
+	end
+	assert(maj,"Failed to parse version ".._TARANTOOL)
+	tt_version.maj = tonumber(maj)
+	tt_version.min = tonumber(min)
+	tt_version.mic = tonumber(mic)
+	tt_version.bld = bld
+end
+
+local function tt_less_than(maj, min, mic)
+	if tt_version.maj < maj then
+		return true
+	elseif tt_version.maj == maj and tt_version.min < min then
+		return true
+	elseif tt_version.maj == maj and tt_version.min == min then
+		return tt_version.mic < mic
+	else
+		return false
+	end
+end
+
+
 local function _tuple2hash ( f )
 	local idx = {}
 	for k,v in pairs(f) do
@@ -236,6 +264,12 @@ local function init_indexes(space_name, indexes, keep_obsolete)
 			ind_opts.unique = ind.unique
 			ind_opts.if_not_exists = ind.if_not_exists
 			ind_opts.sequence = ind.sequence
+			if ind_opts.hint == nil then
+				ind_opts.hint = not (spacer.hints_enabled == false)
+			end
+			if tt_less_than(2, 6, 1) then
+				ind_opts.hint = nil
+			end
 
 			if ind_opts.type == 'rtree' then
 				if ind.dimension ~= nil then
