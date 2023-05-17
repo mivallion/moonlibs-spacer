@@ -7,12 +7,12 @@
 package = 'spacer'
 version = 'scm-1'
 source  = {
-    url    = 'git+https://github.com/igorcoding/tarantool-spacer.git',
-    branch = 'v1',
+    url    = 'git+https://github.com/moonlibs/spacer.git',
+    branch = 'master',
 }
 description = {
     summary  = "Spacer for Tarantool. For managing spaces easily.",
-    homepage = 'https://github.com/igorcoding/tarantool-spacer',
+    homepage = 'https://github.com/moonlibs/spacer',
     license  = 'MIT',
 }
 dependencies = {
